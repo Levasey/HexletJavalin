@@ -18,6 +18,7 @@ public class HelloWorld {
             config.bundledPlugins.enableDevLogging();
             config.fileRenderer(new JavalinJte());
         });
+
         // Описываем, что загрузится по адресу /
         app.get("/hello", ctx -> {
             String name = ctx.queryParam("name"); // Извлекаем параметр name
@@ -38,7 +39,7 @@ public class HelloWorld {
         );
 
         app.get("/courses", ctx -> {
-            String header = "Курсы по программированию";
+            String header = "Programming courses";
             CoursesPage page = new CoursesPage(courses, header);
             ctx.render("courses/index.jte", model("page", page));
         });
@@ -57,6 +58,10 @@ public class HelloWorld {
 
             CoursePage page = new CoursePage(course);
             ctx.render("courses/show.jte", model("page", page));
+        });
+
+        app.get("/", ctx -> {
+            ctx.render("index.jte");
         });
 
         app.start(7070); // Стартуем веб-сервер
