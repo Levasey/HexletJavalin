@@ -1,7 +1,8 @@
 @import gg.jte.Content
 @import org.example.hexlet.dto.courses.CoursesPage
+
 @param Content content
-@param CoursesPage page
+@param CoursesPage page = null
 
 <!DOCTYPE html>
 <html lang="en">
@@ -22,12 +23,15 @@
         <nav>
             <a href="/">Главная</a>
             <a href="/courses">Курсы</a>
-            <div class="search-form">
-                <form action="/courses" method="get">
-                    <input type="search" name="term" value="${page != null && page.getTerm() != null ? page.getTerm() : ""}" />
-                    <input type="submit" value="Search" />
-                </form>
-            </div>
+            @if (page != null)
+                <!-- Only show search if we have a CoursesPage -->
+                <div class="search-form">
+                    <form action="/courses" method="get">
+                        <input type="search" name="term" value="${page.getTerm() != null ? page.getTerm() : ""}" />
+                        <input type="submit" value="Search" />
+                    </form>
+                </div>
+            @endif
         </nav>
     </header>
 
