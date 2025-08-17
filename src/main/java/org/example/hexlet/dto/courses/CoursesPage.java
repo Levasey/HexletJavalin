@@ -27,4 +27,12 @@ public class CoursesPage {
     public String getTerm() {
         return term;
     }
+
+    public List<Course> getCourses() {
+        return courses;
+    }
+
+    public String getHeader() {
+        return header;
+    }
 }
