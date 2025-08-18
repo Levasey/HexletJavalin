@@ -6,6 +6,9 @@ import io.javalin.rendering.template.JavalinJte;
 import org.example.hexlet.dto.courses.CoursePage;
 import org.example.hexlet.dto.courses.CoursesPage;
 import org.example.hexlet.model.Course;
+import org.example.hexlet.model.User;
+import org.example.hexlet.repository.UserRepository;
+import org.example.hexlet.repository.CourseRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,24 +32,17 @@ public class HelloWorld {
 
         app.get("/users/{id}/post/{postId}", ctx -> {
             var usersId = ctx.pathParam("id");
-            var postId =  ctx.pathParam("postId");
+            var postId = ctx.pathParam("postId");
             ctx.result("Users ID: " + usersId + " Post ID: " + postId);
         });
 
-        // Initial list of courses
-        List<Course> courses = List.of(
-                new Course(1L, "Java for Beginners", "Learn Java from scratch"),
-                new Course(2L, "Advanced Java", "Deep dive into Java advanced topics"),
-                new Course(3L, "Web Development", "Learn HTML, CSS and JavaScript"),
-                new Course(4L, "Database Fundamentals", "SQL and relational databases")
-        );
-
         app.get("/courses", ctx -> {
             var term = ctx.queryParam("term");
-            List<Course> filteredCourses = courses;
+            CourseRepository courseRepository = new CourseRepository();
+            List<Course> filteredCourses = courseRepository.index();
             if (term != null && !term.isEmpty()) {
                 String lowerTerm = term.toLowerCase();
-                filteredCourses = courses.stream()
+                filteredCourses.stream()
                         .filter(c -> c.getName().toLowerCase().contains(lowerTerm) ||
                                 c.getDescription().toLowerCase().contains(lowerTerm))
                         .collect(Collectors.toList());
@@ -56,12 +52,25 @@ public class HelloWorld {
             ctx.render("courses/index.jte", model("page", page));
         });
 
+        app.get("/courses/build", ctx -> {
+            ctx.render("courses/build.jte");
+        });
+
+        app.post("/courses", ctx -> {
+            var name = ctx.formParam("name");
+            var description = ctx.formParam("description");
+
+            Course course = new Course(name, description);
+            CourseRepository repo = new CourseRepository();
+            repo.save(course);
+            ctx.redirect("/courses");
+        });
+
         app.get("/courses/{id}", ctx -> {
             String id = ctx.pathParam("id");
-            Course course = courses.stream()
-                    .filter(c -> c.getId().equals(Long.valueOf(id)))
-                    .findFirst()
-                    .orElse(null);
+            CourseRepository repo = new CourseRepository();
+
+            Course course = repo.show(Long.parseLong(id));
             if (course == null) {
                 ctx.status(404);
                 ctx.result("Курс не найден");
@@ -70,6 +79,22 @@ public class HelloWorld {
 
             CoursePage page = new CoursePage(course);
             ctx.render("courses/show.jte", model("page", page));
+        });
+
+        app.get("/users/build", ctx -> {
+            ctx.render("users/build.jte");
+        });
+
+        app.post("/users", ctx -> {
+            var name = ctx.formParam("name").trim();
+            var email = ctx.formParam("email").trim().toLowerCase();
+            var password = ctx.formParam("password");
+            var passwordConfirmation = ctx.formParam("passwordConfirmation");
+
+            var user = new User(name, email, password);
+            UserRepository userRepository = new UserRepository();
+            userRepository.save(user);
+            ctx.redirect("/");
         });
 
         app.get("/", ctx -> {

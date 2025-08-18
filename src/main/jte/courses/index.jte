@@ -13,6 +13,7 @@
                </div>
             @endfor
         @endif
+        <a href="/courses/build">Add course</a>
     `,
     page = page
 )

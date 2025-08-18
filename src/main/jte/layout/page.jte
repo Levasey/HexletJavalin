@@ -23,6 +23,7 @@
         <nav>
             <a href="/">Главная</a>
             <a href="/courses">Курсы</a>
+            <a href="/users/build">Регистрация</a>
             @if (page != null)
                 <!-- Only show search if we have a CoursesPage -->
                 <div class="search-form">
