@@ -2,34 +2,41 @@ package org.example.hexlet.repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.example.hexlet.model.Course;
 
 public class CourseRepository {
-    // Тип зависит от того, с какой сущностью идет работа в упражнении
-    private static Long COURSE_COUNT = 0L;
-    private static List<Course> courses;
+    private static AtomicLong idCounter = new AtomicLong(0);
+    private static List<Course> entities = new ArrayList<>();
 
-    // Initial list of courses
-    {
-        courses = new ArrayList<Course>();
-
-        courses.add(new Course(++COURSE_COUNT, "Java for Beginners", "Learn Java from scratch"));
-        courses.add(new Course(++COURSE_COUNT, "Advanced Java", "Deep dive into Java advanced topics"));
-        courses.add(new Course(++COURSE_COUNT, "Web Development", "Learn HTML, CSS and JavaScript"));
-        courses.add(new Course(++COURSE_COUNT, "Database Fundamentals", "SQL and relational databases"));
+    public static void save(Course course) {
+        course.setId(idCounter.incrementAndGet());
+        entities.add(course);
     }
 
-    public List<Course> index() {
-        return courses;
+    public static List<Course> search(String term) {
+        if (term == null || term.isEmpty()) {
+            return entities;
+        }
+        return entities.stream()
+                .filter(course -> course.getName().toLowerCase().contains(term.toLowerCase()) ||
+                        course.getDescription().toLowerCase().contains(term.toLowerCase()))
+                .toList();
     }
 
-    public Course show(Long id) {
-        return courses.stream().filter(course -> course.getId().equals(id)).findAny().orElse(null);
+    public static Optional<Course> find(Long id) {
+        return entities.stream()
+                .filter(course -> course.getId().equals(id))
+                .findAny();
     }
 
-    public void save(Course course) {
-        course.setId(++COURSE_COUNT);
-        courses.add(course);
+    public static List<Course> getEntities() {
+        return entities;
+    }
+
+    public static void delete(Long id) {
+        entities.remove(find(id));
     }
 }

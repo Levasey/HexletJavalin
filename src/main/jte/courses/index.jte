@@ -3,17 +3,22 @@
 
 @template.layout.page(
     content = @`
-        <h1>${page.getHeader()}</h1>
+        <h1>${page.getHeader() != null ? page.getHeader() : "All Courses"}</h1>
+
+        @if(page.getTerm() != null && !page.getTerm().isEmpty())
+            <p>Search results for: "${page.getTerm()}"</p>
+        @endif
+
         @if(page.getCourses().isEmpty())
-            <p>No courses found matching your search criteria</p>
+                <p>No courses found</p>
         @else
             @for(var course : page.getCourses())
-               <div>
-                   <h2><a href="/courses/${course.getId()}">${course.getName()}</a></h2>
-               </div>
+                <a href="/courses/${course.getId()}">${course.getName()}</a>
             @endfor
         @endif
-        <a href="/courses/build">Add course</a>
+
+        <p><a href="/courses/build">Create New Course</a></p>
     `,
-    page = page
+    coursesPage = page,
+    usersPage = null
 )

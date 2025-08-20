@@ -9,6 +9,10 @@ public class CoursesPage {
     private String header;
     private String term;
 
+    public CoursesPage(List<Course> courses) {
+        this.courses = courses;
+    }
+
     public CoursesPage(List<Course> courses, String header, String term) {
         this.courses = courses;
         this.header = header;

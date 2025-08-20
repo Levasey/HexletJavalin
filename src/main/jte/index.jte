@@ -4,5 +4,6 @@
         <p>Это главная страница учебного проекта Hexlet.</p>
         <p>Здесь вы можете просмотреть <a href="/courses">список курсов</a>.</p>
     `,
-    page = null
+    coursesPage = null,
+    usersPage = null
 )

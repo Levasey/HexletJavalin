@@ -3,17 +3,8 @@ package org.example.hexlet;
 import io.javalin.Javalin;
 import io.javalin.rendering.template.JavalinJte;
 
-import org.example.hexlet.dto.courses.CoursePage;
-import org.example.hexlet.dto.courses.CoursesPage;
-import org.example.hexlet.model.Course;
-import org.example.hexlet.model.User;
-import org.example.hexlet.repository.UserRepository;
-import org.example.hexlet.repository.CourseRepository;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static io.javalin.rendering.template.TemplateUtil.model;
+import org.example.hexlet.controller.CoursesController;
+import org.example.hexlet.controller.UsersController;
 
 public class HelloWorld {
     public static void main(String[] args) {
@@ -23,79 +14,29 @@ public class HelloWorld {
             config.fileRenderer(new JavalinJte());
         });
 
-        // Описываем, что загрузится по адресу /
-        app.get("/hello", ctx -> {
-            String name = ctx.queryParam("name"); // Извлекаем параметр name
-            String greeting = (name != null && !name.isEmpty()) ? "Hello, " + name + "!" : "Hello, World!";
-            ctx.result(greeting); // Возвращаем результат
-        });
+        // Handle various favicon requests
+        app.get("/favicon.ico", ctx -> ctx.status(204));
+        app.get("/favicon.png", ctx -> ctx.status(204));
+        app.get("/apple-touch-icon.png", ctx -> ctx.status(204));
+        app.get("/apple-touch-icon-precomposed.png", ctx -> ctx.status(204));
 
-        app.get("/users/{id}/post/{postId}", ctx -> {
-            var usersId = ctx.pathParam("id");
-            var postId = ctx.pathParam("postId");
-            ctx.result("Users ID: " + usersId + " Post ID: " + postId);
-        });
-
-        app.get("/courses", ctx -> {
-            var term = ctx.queryParam("term");
-            CourseRepository courseRepository = new CourseRepository();
-            List<Course> filteredCourses = courseRepository.index();
-            if (term != null && !term.isEmpty()) {
-                String lowerTerm = term.toLowerCase();
-                filteredCourses.stream()
-                        .filter(c -> c.getName().toLowerCase().contains(lowerTerm) ||
-                                c.getDescription().toLowerCase().contains(lowerTerm))
-                        .collect(Collectors.toList());
-            }
-            String header = filteredCourses.isEmpty() ? "No courses found" : "Programming courses";
-            CoursesPage page = new CoursesPage(filteredCourses, header, term);
-            ctx.render("courses/index.jte", model("page", page));
-        });
-
-        app.get("/courses/build", ctx -> {
-            ctx.render("courses/build.jte");
-        });
-
-        app.post("/courses", ctx -> {
-            var name = ctx.formParam("name");
-            var description = ctx.formParam("description");
-
-            Course course = new Course(name, description);
-            CourseRepository repo = new CourseRepository();
-            repo.save(course);
-            ctx.redirect("/courses");
-        });
-
-        app.get("/courses/{id}", ctx -> {
-            String id = ctx.pathParam("id");
-            CourseRepository repo = new CourseRepository();
-
-            Course course = repo.show(Long.parseLong(id));
-            if (course == null) {
-                ctx.status(404);
-                ctx.result("Курс не найден");
-                return;
-            }
-
-            CoursePage page = new CoursePage(course);
-            ctx.render("courses/show.jte", model("page", page));
-        });
-
-        app.get("/users/build", ctx -> {
-            ctx.render("users/build.jte");
-        });
-
-        app.post("/users", ctx -> {
-            var name = ctx.formParam("name").trim();
-            var email = ctx.formParam("email").trim().toLowerCase();
-            var password = ctx.formParam("password");
-            var passwordConfirmation = ctx.formParam("passwordConfirmation");
-
-            var user = new User(name, email, password);
-            UserRepository userRepository = new UserRepository();
-            userRepository.save(user);
-            ctx.redirect("/");
-        });
+        app.get("/courses", CoursesController::index);
+        app.get("/courses/build", CoursesController::build);
+        app.get("/courses/{id}", CoursesController::show);
+        app.post("/courses", CoursesController::create);
+        app.get("/courses/{id}/edit", CoursesController::edit);
+        app.patch("/courses/{id}", CoursesController::update);
+        app.post("/courses/{id}", CoursesController::update);
+        app.delete("/courses/{id}", CoursesController::delete);
+        
+        app.get("/users", UsersController::index);
+        app.get("/users/build", UsersController::build);
+        app.get("/users/{id}", UsersController::show);
+        app.post("/users", UsersController::create);
+        app.get("/users/{id}/edit", UsersController::edit);
+        app.patch("/users/{id}", UsersController::update);
+        app.post("/users/{id}", UsersController::update);
+        app.delete("/users/{id}", UsersController::destroy);
 
         app.get("/", ctx -> {
             ctx.render("index.jte");

@@ -4,31 +4,40 @@ import org.example.hexlet.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class UserRepository {
-    private static Long PEOPLE_COUNT = 0L;
-    private List<User> users;
+    private static AtomicLong idCounter = new AtomicLong(0);
+    private static List<User> users = new ArrayList<>();
 
-    {
-        users = new ArrayList<User>();
-
-        users.add(new User(++PEOPLE_COUNT, "Tom", "tom@mail.com", "1"));
-        users.add(new User(++PEOPLE_COUNT, "Bob", "bob@mail.com", "2"));
-        users.add(new User(++PEOPLE_COUNT, "Mike", "mike@mail.com", "3"));
-        users.add(new User(++PEOPLE_COUNT, "Katy", "katy@mail.com", "4"));
+    public static void save(User user) {
+        user.setId(idCounter.incrementAndGet());
+        users.add(user);
     }
 
-    public List<User> index() {
+    public static List<User> search(String term) {
+        if (term == null || term.isEmpty()) {
+            return users;
+        }
+        return users.stream()
+                .filter(user -> user.getName().toLowerCase().contains(term.toLowerCase()) ||
+                        user.getEmail().toLowerCase().contains(term.toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    public static Optional<User> find(Long id) {
+        return users.stream()
+                .filter(user -> user.getId().equals(id))
+                .findAny();
+    }
+
+    public static List<User> getUsers() {
         return users;
     }
 
-    public User show(Long id) {
-        return users.stream().filter(user -> user.getId().equals(id)).findAny().orElse(null);
-    }
-
-    public void save(User user) {
-        user.setId(++PEOPLE_COUNT);
-        users.add(user);
+    public static void delete(Long id) {
+        users.remove(find(id));
     }
 }
-

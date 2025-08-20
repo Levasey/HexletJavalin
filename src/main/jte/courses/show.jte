@@ -3,8 +3,19 @@
 
 @template.layout.page(
     content = @`
-        <h1>Описание курса ${page.getCourse().getName()}</h1>
+        <h1>${page.getCourse().getName()}</h1>
         <p>${page.getCourse().getDescription()}</p>
-        <p><a href="/courses">← Назад к списку курсов</a></p>
+
+        <div>
+            <a href="/courses/${page.getCourse().getId()}/edit">Edit</a>
+            <form action="/courses/${page.getCourse().getId()}" method="post" style="display:inline">
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit">Delete</button>
+            </form>
+        </div>
+
+        <p><a href="/courses">Back to all courses</a></p>
     `,
+    coursesPage = null,
+    usersPage = null
 )
