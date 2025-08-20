@@ -13,8 +13,22 @@ public class UserRepository {
     private static List<User> users = new ArrayList<>();
 
     public static void save(User user) {
-        user.setId(idCounter.incrementAndGet());
-        users.add(user);
+        // Если у пользователя уже есть ID - это обновление
+        if (user.getId() == null) {
+            user.setId(idCounter.incrementAndGet());
+            users.add(user);
+        } else {
+            // Обновление существующего пользователя
+            Optional<User> existingUser = find(user.getId());
+            if (existingUser.isPresent()) {
+                User oldUser = existingUser.get();
+                oldUser.setName(user.getName());
+                oldUser.setEmail(user.getEmail());
+                oldUser.setPassword(user.getPassword());
+            } else {
+                users.add(user);
+            }
+        }
     }
 
     public static List<User> search(String term) {

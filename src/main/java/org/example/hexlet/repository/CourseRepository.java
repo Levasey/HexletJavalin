@@ -12,8 +12,23 @@ public class CourseRepository {
     private static List<Course> entities = new ArrayList<>();
 
     public static void save(Course course) {
-        course.setId(idCounter.incrementAndGet());
-        entities.add(course);
+        // Если у курса уже есть ID - это обновление, а не создание
+        if (course.getId() == null) {
+            // Новый курс - генерируем ID
+            course.setId(idCounter.incrementAndGet());
+            entities.add(course);
+        } else {
+            // Обновление существующего курса
+            Optional<Course> existingCourse = find(course.getId());
+            if (existingCourse.isPresent()) {
+                Course oldCourse = existingCourse.get();
+                oldCourse.setName(course.getName());
+                oldCourse.setDescription(course.getDescription());
+            } else {
+                // Если курс с таким ID не найден, добавляем как новый
+                entities.add(course);
+            }
+        }
     }
 
     public static List<Course> search(String term) {

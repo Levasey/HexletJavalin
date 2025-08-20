@@ -53,8 +53,10 @@ public class CoursesController {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
         String name = ctx.formParam("name");
         String description = ctx.formParam("description");
+
         Course course = CourseRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
+
         course.setName(name);
         course.setDescription(description);
         CourseRepository.save(course);
