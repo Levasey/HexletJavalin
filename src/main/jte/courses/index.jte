@@ -13,12 +13,13 @@
                 <p>No courses found</p>
         @else
             @for(var course : page.getCourses())
-                <a href="/courses/${course.getId()}">${course.getName()}</a>
+                <p><a href="/courses/${course.getId()}">${course.getName()}</a></p>
             @endfor
         @endif
 
         <p><a href="/courses/build">Create New Course</a></p>
     `,
     coursesPage = page,
-    usersPage = null
+    usersPage = null,
+    page = page
 )

@@ -14,12 +14,6 @@ public class HelloWorld {
             config.fileRenderer(new JavalinJte());
         });
 
-        // Handle various favicon requests
-        app.get("/favicon.ico", ctx -> ctx.status(204));
-        app.get("/favicon.png", ctx -> ctx.status(204));
-        app.get("/apple-touch-icon.png", ctx -> ctx.status(204));
-        app.get("/apple-touch-icon-precomposed.png", ctx -> ctx.status(204));
-
         app.get("/courses", CoursesController::index);
         app.get("/courses/build", CoursesController::build);
         app.get("/courses/{id}", CoursesController::show);
@@ -28,7 +22,8 @@ public class HelloWorld {
         app.patch("/courses/{id}", CoursesController::update);
         app.post("/courses/{id}", CoursesController::update);
         app.delete("/courses/{id}", CoursesController::delete);
-        
+        app.post("/courses/{id}/delete", CoursesController::delete);
+
         app.get("/users", UsersController::index);
         app.get("/users/build", UsersController::build);
         app.get("/users/{id}", UsersController::show);
@@ -37,6 +32,7 @@ public class HelloWorld {
         app.patch("/users/{id}", UsersController::update);
         app.post("/users/{id}", UsersController::update);
         app.delete("/users/{id}", UsersController::destroy);
+        app.post("/users/{id}/delete", UsersController::destroy);
 
         app.get("/", ctx -> {
             ctx.render("index.jte");

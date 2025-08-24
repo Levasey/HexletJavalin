@@ -23,6 +23,12 @@ dependencies {
     implementation("io.javalin:javalin-rendering:6.7.0")
     implementation("gg.jte:jte:3.2.1")
 
+    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    implementation("com.zaxxer:HikariCP:7.0.2")
+
+    // https://mvnrepository.com/artifact/org.postgresql/postgresql
+    implementation("org.postgresql:postgresql:42.7.7")
+
     // https://mvnrepository.com/artifact/org.projectlombok/lombok
     implementation("org.projectlombok:lombok:1.18.38")
 

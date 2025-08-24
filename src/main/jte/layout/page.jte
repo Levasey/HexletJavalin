@@ -1,12 +1,14 @@
 @import gg.jte.Content
 @import org.example.hexlet.dto.courses.CoursesPage
 @import org.example.hexlet.dto.users.UsersPage
+@import org.example.hexlet.dto.BasePage
 
 @param Content content
 @param CoursesPage coursesPage = null
 @param UsersPage usersPage = null
 @param String flashMessage = null
 @param String flashType = null
+@param BasePage page = null
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hexlet App</title>
     <link rel="icon" href="data:,"> <!-- Empty favicon to prevent 404 -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="C:\Users\User\IdeaProjects\HexletJavalin\src\main\jte\style.css">
 </head>
 <body>
     <header>
@@ -51,9 +53,9 @@
     <main>
         <div class="container">
             <div class="content-wrapper">
-                @if (flashMessage != null)
-                    <div class="flash ${flashType != null ? flashType : ""}">
-                        ${flashMessage}
+                @if (page != null && page.hasFlash())
+                    <div class="flash flash-${page.getFlashType() != null ? page.getFlashType() : "info"}">
+                        ${page.getFlash()}
                     </div>
                 @endif
 

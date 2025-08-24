@@ -13,11 +13,12 @@
             <p>No users found</p>
         @else
             @for(var user : page.getUsers())
-                <a href="/users/${user.getId()}">${user.getName()}</a>
+                <p><a href="/users/${user.getId()}">${user.getName()}</a></p>
             @endfor
         @endif
         <p><a href="/users/build">Register New User</a></p>
     `,
     usersPage = page,
-    coursesPage = null
+    coursesPage = null,
+    page = page
 )

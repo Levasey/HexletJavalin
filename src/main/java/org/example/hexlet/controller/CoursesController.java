@@ -18,6 +18,8 @@ public class CoursesController {
         List<Course> courses = CourseRepository.search(term);
         var header = term != null ? "Search Results" : "All Courses";
         var page = new CoursesPage(courses, header, term);
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        page.setFlashType(ctx.consumeSessionAttribute("flashType"));
         ctx.render("courses/index.jte", model("page", page));
     }
 
@@ -26,6 +28,8 @@ public class CoursesController {
         var course = CourseRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
         var page = new CoursePage(course);
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        page.setFlashType(ctx.consumeSessionAttribute("flashType"));
         ctx.render("courses/show.jte", model("page", page));
     }
 
@@ -36,8 +40,19 @@ public class CoursesController {
     public static void create(Context ctx) {
         String name = ctx.formParam("name");
         String description = ctx.formParam("description");
+
+        if (name == null || name.trim().isEmpty()) {
+            ctx.sessionAttribute("flash", "Course name cannot be empty!");
+            ctx.sessionAttribute("flashType", "error");
+            ctx.redirect(NamedRoutes.coursesPath());
+            return;
+        }
+
         Course course = new Course(name, description);
         CourseRepository.save(course);
+
+        ctx.sessionAttribute("flash", "Course has been created successfully!");
+        ctx.sessionAttribute("flashType", "success");
         ctx.redirect(NamedRoutes.coursesPath());
     }
 
@@ -46,6 +61,8 @@ public class CoursesController {
         Course course = CourseRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
         CoursePage page = new CoursePage(course);
+        page.setFlash(ctx.consumeSessionAttribute("flash"));
+        page.setFlashType(ctx.consumeSessionAttribute("flashType"));
         ctx.render("courses/edit.jte", model("page", page));
     }
 
@@ -54,18 +71,29 @@ public class CoursesController {
         String name = ctx.formParam("name");
         String description = ctx.formParam("description");
 
+        if (name == null || name.trim().isEmpty()) {
+            ctx.sessionAttribute("flash", "Course name cannot be empty!");
+            ctx.sessionAttribute("flashType", "error");
+            ctx.redirect("/courses/" + id + "/edit");
+            return;
+        }
+
         Course course = CourseRepository.find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
-
         course.setName(name);
         course.setDescription(description);
-        CourseRepository.save(course);
-        ctx.redirect(NamedRoutes.coursesPath());
+
+        ctx.sessionAttribute("flash", "Course has been updated successfully!");
+        ctx.sessionAttribute("flashType", "success");
+        ctx.redirect("/courses/" + id);
     }
 
     public static void delete(Context ctx) {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
         CourseRepository.delete(id);
+
+        ctx.sessionAttribute("flash", "Course has been deleted successfully!");
+        ctx.sessionAttribute("flashType", "success");
         ctx.redirect(NamedRoutes.coursesPath());
     }
 }
