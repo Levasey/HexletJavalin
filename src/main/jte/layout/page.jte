@@ -17,7 +17,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hexlet App</title>
     <link rel="icon" href="data:,"> <!-- Empty favicon to prevent 404 -->
-    <link rel="stylesheet" href="C:\Users\User\IdeaProjects\HexletJavalin\src\main\jte\style.css">
+    <link rel="stylesheet" href="jetbrains://idea/navigate/reference?project=HexletJavalin&path=style.css">
 </head>
 <body>
     <header>

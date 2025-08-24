@@ -38,6 +38,11 @@ public class HelloWorld {
             ctx.render("index.jte");
         });
 
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            Database.close();
+            System.out.println("Database connections closed");
+        }));
+
         app.start(7070); // Стартуем веб-сервер
     }
 }

@@ -15,7 +15,7 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 public class CoursesController {
     public static void index(Context ctx) {
         String term = ctx.queryParam("term");
-        List<Course> courses = CourseRepository.search(term);
+        List<Course> courses = CourseRepository.getInstance().search(term);
         var header = term != null ? "Search Results" : "All Courses";
         var page = new CoursesPage(courses, header, term);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -25,7 +25,7 @@ public class CoursesController {
 
     public static void show(Context ctx) {
         var id = ctx.pathParamAsClass("id", Long.class).get();
-        var course = CourseRepository.find(id)
+        var course = CourseRepository.getInstance().find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
         var page = new CoursePage(course);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -49,7 +49,7 @@ public class CoursesController {
         }
 
         Course course = new Course(name, description);
-        CourseRepository.save(course);
+        CourseRepository.getInstance().save(course);
 
         ctx.sessionAttribute("flash", "Course has been created successfully!");
         ctx.sessionAttribute("flashType", "success");
@@ -58,7 +58,7 @@ public class CoursesController {
 
     public static void edit(Context ctx) {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
-        Course course = CourseRepository.find(id)
+        Course course = CourseRepository.getInstance().find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
         CoursePage page = new CoursePage(course);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -78,7 +78,7 @@ public class CoursesController {
             return;
         }
 
-        Course course = CourseRepository.find(id)
+        Course course = CourseRepository.getInstance().find(id)
                 .orElseThrow(() -> new NotFoundResponse("Course not found"));
         course.setName(name);
         course.setDescription(description);
@@ -90,7 +90,7 @@ public class CoursesController {
 
     public static void delete(Context ctx) {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
-        CourseRepository.delete(id);
+        CourseRepository.getInstance().delete(id);
 
         ctx.sessionAttribute("flash", "Course has been deleted successfully!");
         ctx.sessionAttribute("flashType", "success");

@@ -1,57 +1,108 @@
 package org.example.hexlet.repository;
 
+import org.example.hexlet.Database;
 import org.example.hexlet.model.User;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
-public class UserRepository {
-    private static AtomicLong idCounter = new AtomicLong(0);
-    private static List<User> users = new ArrayList<>();
+public class UserRepository extends BaseRepository<User> {
+    private static final UserRepository instance = new UserRepository();
 
-    public static void save(User user) {
-        // Если у пользователя уже есть ID - это обновление
+    public static UserRepository getInstance() {
+        return instance;
+    }
+
+    @Override
+    protected String getTableName() {
+        return "users";
+    }
+
+    @Override
+    protected User mapToEntity(ResultSet rs) throws SQLException {
+        return new User(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("password")
+        );
+    }
+
+    @Override
+    protected void setStatementParameters(PreparedStatement stmt, User user) throws SQLException {
+        stmt.setString(1, user.getName());
+        stmt.setString(2, user.getEmail());
+        stmt.setString(3, user.getPassword());
+    }
+
+    @Override
+    public void save(User user) {
         if (user.getId() == null) {
-            user.setId(idCounter.incrementAndGet());
-            users.add(user);
+            insert(user);
         } else {
-            // Обновление существующего пользователя
-            Optional<User> existingUser = find(user.getId());
-            if (existingUser.isPresent()) {
-                User oldUser = existingUser.get();
-                oldUser.setName(user.getName());
-                oldUser.setEmail(user.getEmail());
-                oldUser.setPassword(user.getPassword());
-            } else {
-                users.add(user);
+            update(user);
+        }
+    }
+
+    private void insert(User user) {
+        String sql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            setStatementParameters(stmt, user);
+            stmt.executeUpdate();
+
+            ResultSet generatedKeys = stmt.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                user.setId(generatedKeys.getLong(1));
             }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error inserting user", e);
         }
     }
 
-    public static List<User> search(String term) {
+    private void update(User user) {
+        String sql = "UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?";
+
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            setStatementParameters(stmt, user);
+            stmt.setLong(4, user.getId());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating user", e);
+        }
+    }
+
+    public List<User> search(String term) {
         if (term == null || term.isEmpty()) {
-            return users;
+            return findAll();
         }
-        return users.stream()
-                .filter(user -> user.getName().toLowerCase().contains(term.toLowerCase()) ||
-                        user.getEmail().toLowerCase().contains(term.toLowerCase()))
-                .collect(Collectors.toList());
-    }
 
-    public static Optional<User> find(Long id) {
-        return users.stream()
-                .filter(user -> user.getId().equals(id))
-                .findAny();
-    }
+        List<User> users = new ArrayList<>();
+        String sql = "SELECT * FROM users WHERE name ILIKE ? OR email ILIKE ?";
 
-    public static List<User> getUsers() {
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, "%" + term + "%");
+            stmt.setString(2, "%" + term + "%");
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                users.add(mapToEntity(rs));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error searching users", e);
+        }
+
         return users;
-    }
-
-    public static void delete(Long id) {
-        users.remove(find(id));
     }
 }

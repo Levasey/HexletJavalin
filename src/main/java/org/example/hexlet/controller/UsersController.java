@@ -15,7 +15,7 @@ import static io.javalin.rendering.template.TemplateUtil.model;
 public class UsersController {
     public static void index(Context ctx) {
         String term = ctx.queryParam("term");
-        List<User> users = UserRepository.search(term);
+        List<User> users = UserRepository.getInstance().search(term);
         var header = term != null ? "Search Results" : "All Users";
         var page = new UsersPage(users, header, term);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -25,7 +25,7 @@ public class UsersController {
 
     public static void show(Context ctx) {
         var id = ctx.pathParamAsClass("id", Long.class).get();
-        var user = UserRepository.find(id)
+        var user = UserRepository.getInstance().find(id)
                 .orElseThrow(() -> new NotFoundResponse("User not found"));
         var page = new UserPage(user);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -66,7 +66,7 @@ public class UsersController {
         }
 
         User user = new User(name, email, password);
-        UserRepository.save(user);
+        UserRepository.getInstance().save(user);
 
         ctx.sessionAttribute("flash", "User registered successfully!");
         ctx.sessionAttribute("flashType", "success");
@@ -75,7 +75,7 @@ public class UsersController {
 
     public static void edit(Context ctx) {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
-        User user = UserRepository.find(id)
+        User user = UserRepository.getInstance().find(id)
                 .orElseThrow(() -> new NotFoundResponse("User not found"));
         UserPage page = new UserPage(user);
         page.setFlash(ctx.consumeSessionAttribute("flash"));
@@ -96,7 +96,7 @@ public class UsersController {
             return;
         }
 
-        User user = UserRepository.find(id)
+        User user = UserRepository.getInstance().find(id)
                 .orElseThrow(() -> new NotFoundResponse("User not found"));
 
         user.setName(name);
@@ -112,7 +112,7 @@ public class UsersController {
 
     public static void destroy(Context ctx) {
         Long id = ctx.pathParamAsClass("id", Long.class).get();
-        UserRepository.delete(id);
+        UserRepository.getInstance().delete(id);
 
         ctx.sessionAttribute("flash", "User deleted successfully!");
         ctx.sessionAttribute("flashType", "success");
